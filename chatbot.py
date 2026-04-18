@@ -16,6 +16,8 @@ for r in ['stopwords', 'punkt', 'wordnet', 'punkt_tab']:
 
 class SmartChatbot:
     def __init__(self):
+        self.initialized = False
+        self.error_message = None
         try:
             # Load models
             # retrieval_tfidf_model.pkl is used for sentence questions (finding reference answers)
@@ -29,8 +31,9 @@ class SmartChatbot:
             self.kb = assessment_data.get('question_index')
             
             if self.kb is None:
-                print("Error: Could not find Knowledge Base in smart_assessment_model.pkl")
-                sys.exit(1)
+                self.error_message = "Error: Could not find Knowledge Base in smart_assessment_model.pkl"
+                print(self.error_message)
+                return
             
             # Pre-calculate KB vectors for retrieval
             self.kb['question_clean'] = self.kb['question'].apply(self.preprocess)
@@ -47,11 +50,18 @@ class SmartChatbot:
                 r'\w+\s*/\s*\w+\s*/\s*\w+',
             ]
             
-            print("✅ Smart Chatbot Initialized!")
+            print("Smart Chatbot Initialized!")
+            self.initialized = True
             
         except Exception as e:
-            print(f"Error during initialization: {e}")
-            sys.exit(1)
+            self.error_message = f"Chatbot Initialization Error: {e}. Please ensure model .pkl files are in the root directory."
+            print(self.error_message)
+            # Do NOT sys.exit(1) here, so the API server can still start for debugging
+            return
+
+    def get_response(self, user_input):
+        if not self.initialized:
+            return f"Chatbot is currently unavailable. {self.error_message or 'Please check server logs.'}"
 
     def preprocess(self, text):
         if not text or pd.isna(text):
@@ -99,6 +109,12 @@ class SmartChatbot:
         return {'question': question_stem, 'options': options}
 
     def get_plain_response(self, user_question):
+        if not self.initialized:
+            return {
+                "type": "plain",
+                "status": "error",
+                "response": f"Chatbot is currently unavailable. {self.error_message or 'Please check server logs.'}"
+            }
         q_clean = self.preprocess(user_question)
         q_vec = self.retrieval_tfidf.transform([q_clean])
         sims = cosine_similarity(q_vec, self.kb_vectors).flatten()
@@ -137,6 +153,12 @@ class SmartChatbot:
         print(sep)
 
     def get_mcq_response(self, parsed):
+        if not self.initialized:
+            return {
+                "type": "mcq",
+                "status": "error",
+                "response": f"Chatbot is currently unavailable. {self.error_message or 'Please check server logs.'}"
+            }
         question_stem = parsed['question']
         options = parsed['options']
 

@@ -49,9 +49,6 @@ frontend/.env.production
 *.sqlite3
 *.db
 
-# Models (Serialized files)
-*.pkl
-
 # OS
 .DS_Store
 Thumbs.db

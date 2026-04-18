@@ -13,7 +13,12 @@ from database import engine, get_db
 from datetime import datetime
 
 # Create the database tables
-models.Base.metadata.create_all(bind=engine)
+try:
+    models.Base.metadata.create_all(bind=engine)
+    print("Database tables created successfully!")
+except Exception as e:
+    print(f"Database Initialization Error: {e}")
+    # We continue so the app can start, but DB-dependent routes will fail with 500
 
 app = FastAPI(
     title="Smart Science Chatbot API",
