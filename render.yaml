@@ -18,11 +18,10 @@ services:
         value: "30"
 
   # Frontend Static Site
-  - type: web
+  - type: static
     name: ai-assessment-frontend
-    env: static
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    publishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
         fromService:
