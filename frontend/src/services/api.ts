@@ -1,11 +1,14 @@
 import axios from 'axios';
 
-let API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+let API_URL = import.meta.env.VITE_API_URL || 'https://ai-assessment-7oud.onrender.com';
 
 console.log('API URL being used:', API_URL);
 
-// Ensure the URL has a protocol when provided by Render's host property
+// If the URL is just the hostname (like 'ai-assessment-7oud'), fix it
 if (API_URL && !API_URL.startsWith('http')) {
+  if (!API_URL.includes('.')) {
+    API_URL = `${API_URL}.onrender.com`;
+  }
   API_URL = `https://${API_URL}`;
 }
 
