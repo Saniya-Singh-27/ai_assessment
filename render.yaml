@@ -25,10 +25,7 @@ services:
     publishPath: dist
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: ai_assessment
-          property: host
+        value: https://ai-assessment.onrender.com
 
 databases:
   - name: chatbot-db
